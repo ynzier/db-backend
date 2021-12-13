@@ -55,7 +55,7 @@ Product.getOne = (id, result) => {
 };
 Product.getAll = (result) => {
   sql.query(
-    "SELECT products.prod_id ,products.description,products.prod_name,products.price,products.image,products.stock, product_types.category,brands.name FROM products INNER JOIN product_types ON products.prod_type = product_types.prod_type INNER JOIN brands ON products.brand_id = brands.id;",
+    "SELECT products.prod_id,products.prod_type ,products.description,products.prod_name,products.price,products.image,products.stock, product_types.category,brands.name FROM products INNER JOIN product_types ON products.prod_type = product_types.prod_type INNER JOIN brands ON products.brand_id = brands.id;",
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -74,6 +74,38 @@ ProductType.getAllTypes = (result) => {
       result(null, err);
       return;
     }
+    result(null, res);
+  });
+};
+ProductType.addProductType = async (newType, result) => {
+  sql.query("INSERT INTO product_types SET ?", newType, (err, res) => {
+    if (err) {
+      if (err.code === "ER_DUP_ENTRY") {
+        result({ kind: "duplicated" }, null);
+        return;
+      } else {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+    }
+    result(null, { id: res.insertId, ...newType });
+  });
+};
+ProductType.deleteProductType = (id, result) => {
+  sql.query("DELETE FROM product_types WHERE prod_type = ?", id, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(null, err);
+      return;
+    }
+
+    if (res.affectedRows == 0) {
+      // not found Customer with the id
+      result({ kind: "not_found" }, null);
+      return;
+    }
+
     result(null, res);
   });
 };
@@ -101,6 +133,23 @@ Brand.getAllBrands = (result) => {
       result(null, err);
       return;
     }
+    result(null, res);
+  });
+};
+Brand.deleteBrand = (id, result) => {
+  sql.query("DELETE FROM brands WHERE id = ?", id, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(null, err);
+      return;
+    }
+
+    if (res.affectedRows == 0) {
+      // not found Customer with the id
+      result({ kind: "not_found" }, null);
+      return;
+    }
+
     result(null, res);
   });
 };
@@ -144,5 +193,28 @@ Product.updateById = (id, product, result) => {
     }
   );
 };
+Product.updateStock = async (data, result) => {
+  await sql.query(
+    "UPDATE products SET stock =  stock - " +
+      data.quantity +
+      "  WHERE prod_id = '" +
+      data.prod_id +
+      "' AND stock > 0",
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+        return;
+      }
 
+      if (res.affectedRows == 0) {
+        // not found Customer with the id
+        result({ kind: "not_found" }, null);
+        return;
+      }
+
+      result(null, res);
+    }
+  );
+};
 module.exports = { Product, Brand, ProductType };

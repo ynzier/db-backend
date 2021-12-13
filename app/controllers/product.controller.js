@@ -67,6 +67,50 @@ exports.getAllTypes = (req, res) => {
   });
 };
 
+exports.addProductType = (req, res) => {
+  // Validate request
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  if (req.body.data != null) req.body = req.body.data;
+  // Create a Customer
+  const type = new ProductType({
+    category: req.body.category,
+  });
+
+  // Save Customer in the database
+  ProductType.addProductType(type, (err, data) => {
+    if (err) {
+      if (err.kind === "duplicated") {
+        return res.status(400).send({
+          message: "duplicated.",
+        });
+      }
+      return res.status(500).send({
+        message:
+          err.message || "Some error occurred while creating the Customer.",
+      });
+    } else res.send(data);
+  });
+};
+exports.deleteProductType = (req, res) => {
+  ProductType.deleteProductType(req.params.type, (err, data) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        res.status(404).send({
+          message: `Not found Product with id .`,
+        });
+      } else {
+        res.status(500).send({
+          message: "Could not delete Customer with id ",
+        });
+      }
+    } else res.send({ message: `Customer was deleted successfully!` });
+  });
+};
 exports.addBrand = (req, res) => {
   // Validate request
   if (!req.body) {
@@ -86,7 +130,7 @@ exports.addBrand = (req, res) => {
     if (err) {
       if (err.kind === "duplicated") {
         return res.status(400).send({
-          message: "ชื่อผู้ใช้งานหรืออีเมลล์ถูกใช้ไปแแล้ว.",
+          message: "duplicated.",
         });
       }
       return res.status(500).send({
@@ -105,6 +149,21 @@ exports.getAllBrands = (req, res) => {
           err.message || "Some error occurred while retrieving Admin Roles.",
       });
     else res.send(data);
+  });
+};
+exports.deleteBrand = (req, res) => {
+  Brand.deleteBrand(req.params.brand, (err, data) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        res.status(404).send({
+          message: `Not found Product with id .`,
+        });
+      } else {
+        res.status(500).send({
+          message: "Could not delete Customer with id ",
+        });
+      }
+    } else res.send({ message: `Customer was deleted successfully!` });
   });
 };
 exports.deleteProduct = (req, res) => {
@@ -131,21 +190,32 @@ exports.updateProduct = (req, res) => {
     });
   }
 
-  Product.updateById(
-    req.params.prod_id,
-    new Product(req.body),
-    (err, data) => {
-      if (err) {
-        if (err.kind === "not_found") {
-          res.status(404).send({
-            message: `Not found Customer with id ${req.params.customerId}.`,
-          });
-        } else {
-          res.status(500).send({
-            message: "Error updating Customer with id " + req.params.customerId,
-          });
-        }
-      } else res.send(data);
-    }
-  );
+  Product.updateById(req.params.prod_id, new Product(req.body), (err, data) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        res.status(404).send({
+          message: `Not found Customer with id ${req.params.customerId}.`,
+        });
+      } else {
+        res.status(500).send({
+          message: "Error updating Customer with id " + req.params.customerId,
+        });
+      }
+    } else res.send(data);
+  });
+};
+exports.updateStock = (req, res) => {
+  Product.updateStock(req.body, (err, data) => {
+    if (err) {
+      if (err.kind == "not_found") {
+        return res.status(404).send({
+          message: "test",
+        });
+      } else {
+        res.status(500).send({
+          message: "Error updating Customer with id ",
+        });
+      }
+    } else res.send(data);
+  });
 };

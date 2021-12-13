@@ -1,6 +1,6 @@
 module.exports = {
-  HOST: "13.213.134.204",
+  HOST: "knt-dev.online",
   USER: "root",
-  PASSWORD: "",
+  PASSWORD: "isylzjko",
   DB: "project_db",
 };

@@ -80,7 +80,6 @@ Admin.getAdminAccounts = (result) => {
   );
 };
 Roles.getAllRoles = (result) => {
-  console.log("test");
   sql.query("SELECT * FROM admin_role", (err, res) => {
     if (err) {
       console.log("error: ", err);

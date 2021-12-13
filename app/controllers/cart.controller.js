@@ -58,3 +58,24 @@ exports.deleteItem = (req, res) => {
     } else res.send({ message: `Customer was deleted successfully!` });
   });
 };
+
+exports.getTransaction = (req, res) => {
+  Cart.getTransaction(req.params.transaction_id, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving Admin Roles.",
+      });
+    else res.send(data);
+  });
+};
+exports.getReceipt = (req, res) => {
+  Cart.getReceipt(req.params.transaction_id, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving Admin Roles.",
+      });
+    else res.send(data);
+  });
+};
